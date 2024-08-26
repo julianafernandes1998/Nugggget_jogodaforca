@@ -1,0 +1,148 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Hangman Game</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+            background-color: #f4f4f4;
+        }
+        .hangman-container {
+            text-align: center;
+        }
+        .word {
+            font-size: 2em;
+            letter-spacing: 5px;
+            margin-bottom: 20px;
+            display: inline-block;
+        }
+        .wrong-letters {
+            margin: 20px 0;
+        }
+        .hangman {
+            margin-bottom: 20px;
+        }
+        .hangman-part {
+            display: none;
+        }
+        .guess-input {
+            font-size: 1.2em;
+            padding: 10px;
+            width: 50px;
+            text-align: center;
+        }
+        .message {
+            margin-top: 20px;
+            font-size: 1.5em;
+            color: red;
+        }
+    </style>
+</head>
+<body>
+
+<div class="hangman-container">
+    <div class="word" id="word"></div>
+    <div class="hangman">
+        <div class="hangman-part" id="head"> O </div>
+        <div class="hangman-part" id="body"> | </div>
+        <div class="hangman-part" id="left-arm">/ </div>
+        <div class="hangman-part" id="right-arm"> \ </div>
+        <div class="hangman-part" id="left-leg">/ </div>
+        <div class="hangman-part" id="right-leg"> \ </div>
+    </div>
+    <div class="wrong-letters" id="wrong-letters"></div>
+    <input type="text" maxlength="1" class="guess-input" id="guess-input" placeholder="Enter a letter">
+    <div class="message" id="message"></div>
+</div>
+
+<script>
+    const phrase = "Im in love with you";
+    let guessedLetters = [];
+    let wrongLetters = [];
+    const maxWrongAttempts = 6;
+
+    const wordElement = document.getElementById('word');
+    const wrongLettersElement = document.getElementById('wrong-letters');
+    const messageElement = document.getElementById('message');
+    const guessInput = document.getElementById('guess-input');
+
+    function displayWord() {
+        wordElement.innerHTML = phrase.split(' ').map(word => (
+            word.split('').map(letter => (
+                guessedLetters.includes(letter.toLowerCase()) ? letter : '_'
+            )).join('')
+        )).join('  '); // Double space between words
+    }
+
+    function displayWrongLetters() {
+        wrongLettersElement.innerHTML = `Wrong Letters: ${wrongLetters.join(', ')}`;
+    }
+
+    function updateHangman() {
+        if (wrongLetters.length > 0) {
+            document.getElementById('head').style.display = 'block';
+        }
+        if (wrongLetters.length > 1) {
+            document.getElementById('body').style.display = 'block';
+        }
+        if (wrongLetters.length > 2) {
+            document.getElementById('left-arm').style.display = 'block';
+        }
+        if (wrongLetters.length > 3) {
+            document.getElementById('right-arm').style.display = 'block';
+        }
+        if (wrongLetters.length > 4) {
+            document.getElementById('left-leg').style.display = 'block';
+        }
+        if (wrongLetters.length > 5) {
+            document.getElementById('right-leg').style.display = 'block';
+        }
+    }
+
+    function checkWin() {
+        if (wordElement.innerHTML.replace(/  /g, ' ') === phrase) {
+            messageElement.innerHTML = "Congratulations! You've guessed the phrase!";
+            guessInput.disabled = true;
+        }
+    }
+
+    function checkLose() {
+        if (wrongLetters.length >= maxWrongAttempts) {
+            messageElement.innerHTML = `Game Over! The phrase was "${phrase}"`;
+            guessInput.disabled = true;
+        }
+    }
+
+    guessInput.addEventListener('input', (e) => {
+        const guess = e.target.value.toLowerCase();
+        e.target.value = '';
+
+        if (phrase.toLowerCase().includes(guess)) {
+            if (!guessedLetters.includes(guess)) {
+                guessedLetters.push(guess);
+                displayWord();
+                checkWin();
+            }
+        } else {
+            if (!wrongLetters.includes(guess) && !guessedLetters.includes(guess)) {
+                wrongLetters.push(guess);
+                displayWrongLetters();
+                updateHangman();
+                checkLose();
+            }
+        }
+    });
+
+    displayWord();
+</script>
+
+</body>
+</html>
